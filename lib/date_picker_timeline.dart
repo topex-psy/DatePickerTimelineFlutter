@@ -8,27 +8,28 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class DatePickerTimeline extends StatefulWidget {
-  double width;
-  double height;
-
-  TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
-  Color selectionColor;
-  DateTime currentDate;
-  DateChangeListener onDateChange;
-  int daysCount;
-  String locale;
+  final double height;
+  final double itemWidth;
+  final TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
+  final Color selectionColor;
+  final DateTime currentDate;
+  final DateTime minDate;
+  final DateTime maxDate;
+  final DateChangeListener onDateChange;
+  final String locale;
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(
     this.currentDate, {
     Key key,
-    this.width,
     this.height = 80,
+    this.itemWidth = 60,
     this.monthTextStyle = defaultMonthTextStyle,
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
     this.selectionColor = AppColors.defaultSelectionColor,
-    this.daysCount = 50000,
+    @required this.minDate,
+    @required this.maxDate,
     this.onDateChange,
     this.locale = "en_US",
   }) : super(key: key);
@@ -38,42 +39,55 @@ class DatePickerTimeline extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePickerTimeline> {
+  DateTime _currentDate;
+  int _currentIndex;
+  ScrollController _scrollController = ScrollController();
+  int _daysCount;
 
   @override void initState() {
     super.initState();
 
     initializeDateFormatting(widget.locale, null);
+    _currentDate = widget.currentDate;
+    _currentIndex = widget.currentDate.difference(widget.minDate).inDays + 1;
+    _daysCount = widget.maxDate.difference(widget.minDate).inDays + 1;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_currentIndex * widget.itemWidth);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
       height: widget.height,
       child: ListView.builder(
-        itemCount: widget.daysCount,
+        itemCount: _daysCount,
         scrollDirection: Axis.horizontal,
+        controller: _scrollController,
         itemBuilder: (context, index) {
           // Return the Date Widget
-          DateTime _date = DateTime.now().add(Duration(days: index));
-          DateTime date = new DateTime(_date.year, _date.month, _date.day);
-          bool isSelected = compareDate(date, widget.currentDate);
+          DateTime _date = widget.minDate.add(Duration(days: index));
+          DateTime date = DateTime(_date.year, _date.month, _date.day);
+          bool isSelected = compareDate(date, _currentDate);
 
           return DateWidget(
+            width: widget.itemWidth,
             date: date,
             monthTextStyle: widget.monthTextStyle,
             dateTextStyle: widget.dateTextStyle,
             dayTextStyle: widget.dayTextStyle,
             locale: widget.locale,
-            selectionColor:
-                isSelected ? widget.selectionColor : Colors.transparent,
+            selectionColor: isSelected ? widget.selectionColor : Colors.transparent,
             onDateSelected: (selectedDate) {
               // A date is selected
               if (widget.onDateChange != null) {
                 widget.onDateChange(selectedDate);
               }
+              _scrollController.animateTo(index * widget.itemWidth, duration: Duration(milliseconds: 500), curve: Curves.easeOut);
               setState(() {
-                widget.currentDate = selectedDate;
+                _currentDate = selectedDate;
+                _currentIndex = index;
               });
             },
           );

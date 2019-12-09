@@ -2,7 +2,7 @@
 
 [![Pub](https://img.shields.io/pub/v/date_picker_timeline?color=%232bb6f6)](https://pub.dev/packages/date_picker_timeline)
 
-Flutter Date Picker Library that provides a calendar as a horizontal timeline.
+Flutter Date Picker Library that provides a calendar as a horizontal timeline. This version enables you to select date from past and future by passing `minDate` and `maxDate` constructor. Also automatically jump to `currentDate`, and added some scroll animation.
 
 <p>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/master/screenshots/demo.gif?raw=true"/>
@@ -26,6 +26,8 @@ Column(
     children: <Widget>[
       DatePickerTimeline(
         DateTime.now(),
+        minDate: DateTime.now().subtract(Duration(days: 10)),
+        maxDate: DateTime.now(),
         onDateChange: (date) {
           // New date selected
           print(date.day.toString());
@@ -41,19 +43,27 @@ Column(
 DatePickerTimeline(
   this.currentDate, {
   Key key,
-  this.width,
   this.height = 80,
+  this.itemWidth = 60,
   this.monthTextStyle = defaultMonthTextStyle,
   this.dayTextStyle = defaultDayTextStyle,
   this.dateTextStyle = defaultDateTextStyle,
   this.selectionColor = AppColors.defaultSelectionColor,
-  this.daysCount = 50000,
+  this.minDate,
+  this.maxDate,
   this.onDateChange,
   this.locale,
 }) : super(key: key);
 ```
 
-Author
+About This Fork
+------
+
+* This version enables you to select date from past and future by passing `minDate` and `maxDate` constructor.
+* Also automatically jump to `currentDate`, and added some scroll animation.
+
+
+Original Author
 ------
 
 * [Vivek Kaushik](http://github.com/iamvivekkaushik/)

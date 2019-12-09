@@ -49,6 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               DatePickerTimeline(
                 _selectedValue,
+                minDate: DateTime.now().subtract(Duration(days: 10)),
+                maxDate: DateTime.now(),
                 onDateChange: (date) {
                   // New date selected
                   setState(() {
